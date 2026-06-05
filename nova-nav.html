@@ -213,7 +213,7 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
 <!-- Loading -->
 <div id="loading">
   <div class="brand">NOVA</div>
-  <div class="tagline">Moto Navigáció</div>
+  <div class="tagline">Autó Navigáció</div>
   <div class="spinner"></div>
 </div>
 
@@ -470,7 +470,7 @@ function placeDestMarker(lat, lng) {
 /* ── SPEED ── */
 function updateSpeed(kmh) {
   D.speedNum.textContent = kmh;
-  D.speedBox.classList.toggle('warn', kmh > 130);
+  D.speedBox.classList.toggle('warn', kmh > 120);
 }
 
 /* ── ROAD NAME ── */
