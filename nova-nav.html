@@ -7,41 +7,39 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#090D13"/>
 <title>NOVA — Navigáció</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css"/>
 <style>
-/* ═══ RESET ═══ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
 :root{
   --bg:#090D13; --bg2:#111620; --bg3:#1A2030;
-  --acc:#00D9F0; --acc2:#00A8BB;
-  --text:#F0F5FA; --muted:#5E7080; --border:rgba(255,255,255,0.07);
-  --green:#00D48C; --red:#FF4455; --orange:#FF8C42; --yellow:#FFD32A;
+  --acc:#00D9F0; --text:#F0F5FA; --muted:#5E7080; --border:rgba(255,255,255,0.07);
+  --green:#00D48C; --red:#FF4455; --orange:#FF8C42;
   --route:#4AABFF; --glass:rgba(9,13,19,0.88); --glass2:rgba(17,22,32,0.94);
   --radius:14px; --blur:blur(24px);
 }
 
-/* ═══ MAP ═══ */
+/* ── MAP ── */
 #map{position:fixed;inset:0;z-index:0;}
-.leaflet-container{background:#090D13;}
-.leaflet-control-zoom,.leaflet-control-attribution,.leaflet-routing-container{display:none!important;}
+.maplibregl-ctrl-bottom-left,.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-top-right{display:none!important;}
+.maplibregl-canvas-container,.maplibregl-canvas{width:100%!important;height:100%!important;}
 
-/* ═══ LOADING ═══ */
+/* ── LOADING ── */
 #loading{
   position:fixed;inset:0;z-index:900;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
   transition:opacity 0.6s;
 }
-#loading .brand{font-size:64px;font-weight:900;letter-spacing:10px;color:var(--acc);line-height:1;}
-#loading .tagline{font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.brand{font-size:64px;font-weight:900;letter-spacing:10px;color:var(--acc);line-height:1;}
+.tagline{font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
 .spinner{width:32px;height:32px;border:3px solid var(--bg3);border-top-color:var(--acc);border-radius:50%;animation:spin 0.7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:none;}}
 @keyframes ripple{0%{box-shadow:0 0 0 0 rgba(0,217,240,.55);}70%{box-shadow:0 0 0 16px rgba(0,217,240,0);}100%{box-shadow:0 0 0 0 rgba(0,217,240,0);}}
 
-/* ═══ TURN PANEL ═══ */
+/* ── TURN PANEL ── */
 #turn-panel{
   position:fixed;top:0;left:0;right:0;z-index:200;
   background:var(--acc);
@@ -50,17 +48,12 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
   box-shadow:0 8px 48px rgba(0,217,240,0.3);
 }
 #turn-panel.on{display:flex;animation:slideDown 0.25s ease;}
-#turn-box{
-  width:88px;height:88px;border-radius:18px;
-  background:rgba(0,0,0,0.18);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
+#turn-box{width:88px;height:88px;border-radius:18px;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 #turn-svg{width:56px;height:56px;color:#000;overflow:visible;}
-#turn-text{flex:1;min-width:0;}
 #turn-dist{font-size:52px;font-weight:800;color:#000;line-height:1;letter-spacing:-1.5px;}
 #turn-road{font-size:19px;color:rgba(0,0,0,0.65);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ═══ TOP BAR ═══ */
+/* ── TOP BAR ── */
 #top-bar{
   position:fixed;top:0;left:0;right:0;z-index:100;
   padding:calc(env(safe-area-inset-top)+10px) 12px 10px;
@@ -75,12 +68,9 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
 #search-input{flex:1;background:none;border:none;color:var(--text);font-size:16px;outline:none;min-width:0;}
 #search-input::placeholder{color:var(--muted);}
 #clear-btn{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;display:none;padding:0 2px;line-height:1;}
-#menu-btn{
-  width:50px;height:50px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;
-}
+.icon-btn{width:50px;height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;}
 
-/* ═══ RESULTS ═══ */
+/* ── RESULTS ── */
 #results{
   position:fixed;top:82px;left:12px;right:12px;z-index:300;
   background:var(--glass2);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
@@ -88,18 +78,14 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
   display:none;max-height:58dvh;overflow-y:auto;
   box-shadow:0 24px 64px rgba(0,0,0,0.55);
 }
-.r-item{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;
-  transition:background 0.1s;
-}
+.r-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;}
 .r-item:last-child{border-bottom:none;}
 .r-item:active{background:rgba(255,255,255,0.04);}
 .r-ico{width:40px;height:40px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .r-name{font-size:15px;font-weight:600;}
 .r-addr{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ═══ STATUS ═══ */
+/* ── STATUS ── */
 #status{
   position:fixed;top:82px;left:50%;transform:translateX(-50%);z-index:150;
   background:var(--glass2);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
@@ -108,31 +94,25 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
   display:none;white-space:nowrap;
 }
 
-/* ═══ BOTTOM HUD ═══ */
+/* ── BOTTOM HUD ── */
 #hud{
   position:fixed;bottom:0;left:0;right:0;z-index:100;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border-top:1px solid var(--border);
   padding:16px 14px calc(env(safe-area-inset-bottom)+14px);
 }
-
 #start-btn{
   width:100%;background:var(--acc);color:#000;border:none;border-radius:14px;
-  padding:18px;font-size:17px;font-weight:700;letter-spacing:0.3px;cursor:pointer;
+  padding:18px;font-size:17px;font-weight:700;cursor:pointer;
   display:none;margin-bottom:14px;transition:opacity 0.15s;
 }
 #start-btn:active{opacity:0.82;}
-
-#route-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:0 4px 14px;display:none;
-}
+#route-row{display:flex;justify-content:space-between;align-items:center;padding:0 4px 14px;display:none;}
 #rt-time{font-size:34px;font-weight:700;line-height:1;}
 #rt-dist{font-size:13px;color:var(--muted);margin-top:3px;}
 #rt-eta{text-align:right;}
 #rt-eta-val{font-size:20px;font-weight:700;color:var(--acc);}
 #rt-eta-lbl{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
-
 #speed-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
 #speed-box{
   background:var(--bg3);border:1px solid var(--border);border-radius:14px;
@@ -143,52 +123,36 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
 #speed-unit{font-size:9px;color:var(--muted);letter-spacing:3px;margin-top:2px;}
 #speed-box.warn{background:rgba(255,68,85,0.18);border-color:var(--red);}
 #speed-box.warn #speed-num{color:var(--red);}
-
 #road-box{flex:1;min-width:0;}
 #road-main{font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
 #road-sub{font-size:13px;color:var(--muted);}
-
-#slimit{
-  width:54px;height:54px;border-radius:50%;background:#fff;border:5px solid #DD1135;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:900;color:#000;flex-shrink:0;display:none;
-}
-
 #reports{display:flex;gap:6px;}
-.rpt{
-  flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;
-  padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;
-  cursor:pointer;transition:transform 0.12s,background 0.12s;
-}
+.rpt{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform 0.12s,background 0.12s;}
 .rpt:active{transform:scale(0.92);background:var(--bg2);}
 .rpt-i{font-size:22px;line-height:1;}
 .rpt-l{font-size:8px;color:var(--muted);letter-spacing:0.3px;font-weight:700;text-transform:uppercase;}
 
-/* ═══ FLOAT BUTTONS ═══ */
-#fbtns{
-  position:fixed;right:12px;bottom:230px;z-index:100;
-  display:flex;flex-direction:column;gap:8px;
-}
+/* ── FLOAT BUTTONS ── */
+#fbtns{position:fixed;right:12px;bottom:230px;z-index:100;display:flex;flex-direction:column;gap:8px;}
 .fb{
   width:46px;height:46px;border-radius:12px;
   background:var(--glass2);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  color:var(--text);cursor:pointer;font-size:20px;font-weight:700;
-  transition:all 0.15s;
+  color:var(--text);cursor:pointer;font-size:20px;font-weight:700;transition:all 0.15s;
 }
 .fb:active{transform:scale(0.92);}
 .fb.on{background:var(--acc);color:#000;border-color:var(--acc);}
 #recenter{display:none;}
 
-/* ═══ STOP BTN ═══ */
+/* ── STOP BTN ── */
 #stop-btn{
   position:fixed;left:14px;z-index:210;
   background:var(--red);color:#fff;border:none;border-radius:24px;
   padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;
-  display:none;box-shadow:0 4px 24px rgba(255,68,85,0.4);white-space:nowrap;
+  display:none;box-shadow:0 4px 24px rgba(255,68,85,0.4);
 }
 
-/* ═══ TOAST ═══ */
+/* ── TOAST ── */
 #toast{
   position:fixed;bottom:235px;left:50%;transform:translateX(-50%);z-index:500;
   background:var(--bg2);border:1px solid var(--border);border-radius:24px;
@@ -196,15 +160,14 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
   box-shadow:0 8px 40px rgba(0,0,0,0.5);display:none;animation:fadeUp 0.2s ease;
 }
 
-/* ═══ USER DOT ═══ */
-.u-dot{
-  width:22px;height:22px;background:var(--acc);
-  border-radius:50%;border:3px solid #fff;
-  animation:ripple 1.8s ease infinite;
+/* ── USER MARKER ── */
+.u-dot{width:22px;height:22px;background:var(--acc);border-radius:50%;border:3px solid #fff;animation:ripple 1.8s ease infinite;}
+.u-arrow{
+  width:0;height:0;
+  border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:28px solid var(--acc);
+  filter:drop-shadow(0 2px 8px rgba(0,217,240,0.7));
+  transform-origin:50% 100%;
 }
-
-/* ═══ DEST PIN ═══ */
-.d-pin{font-size:0;line-height:0;}
 </style>
 </head>
 <body>
@@ -213,24 +176,24 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
 <!-- Loading -->
 <div id="loading">
   <div class="brand">NOVA</div>
-  <div class="tagline">Autó Navigáció</div>
+  <div class="tagline">3D Navigáció</div>
   <div class="spinner"></div>
 </div>
 
-<!-- Turn panel (nav mode) -->
+<!-- Turn panel -->
 <div id="turn-panel">
   <div id="turn-box">
     <svg id="turn-svg" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
       <path id="turn-path" d="M28 8L28 48M28 8L16 20M28 8L40 20"/>
     </svg>
   </div>
-  <div id="turn-text">
+  <div>
     <div id="turn-dist">—</div>
     <div id="turn-road">Navigáció...</div>
   </div>
 </div>
 
-<!-- Top search bar -->
+<!-- Top search -->
 <div id="top-bar">
   <div class="pill" id="search-wrap">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-linecap="round" style="flex-shrink:0">
@@ -239,7 +202,7 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
     <input id="search-input" type="text" placeholder="Hová mész?" autocomplete="off" autocorrect="off" spellcheck="false"/>
     <button id="clear-btn">✕</button>
   </div>
-  <button class="pill fb" id="menu-btn" style="width:50px;height:50px;flex-shrink:0;">
+  <button class="pill icon-btn" id="menu-btn">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
       <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
@@ -248,13 +211,8 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
   </button>
 </div>
 
-<!-- Search results -->
 <div id="results"></div>
-
-<!-- GPS status -->
-<div id="status">GPS keresése...</div>
-
-<!-- Stop nav button (position set by JS below turn panel) -->
+<div id="status"></div>
 <button id="stop-btn">✕ Leállítás</button>
 
 <!-- Float buttons -->
@@ -264,12 +222,7 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
       <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
     </svg>
   </button>
-  <button class="fb" id="north-btn">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <polygon points="12,2 16,14 12,11 8,14" fill="currentColor" stroke="none"/>
-      <polygon points="12,22 16,10 12,13 8,10" fill="var(--bg3)" stroke="currentColor" stroke-width="1"/>
-    </svg>
-  </button>
+  <button class="fb on" id="tilt-btn" title="3D nézet">3D</button>
   <button class="fb" id="zin">+</button>
   <button class="fb" id="zout">−</button>
 </div>
@@ -277,7 +230,6 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
 <!-- Bottom HUD -->
 <div id="hud">
   <button id="start-btn">▶&nbsp; Navigáció indítása</button>
-
   <div id="route-row">
     <div>
       <div id="rt-time">—</div>
@@ -288,7 +240,6 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
       <div id="rt-eta-lbl">ÉRKEZÉS</div>
     </div>
   </div>
-
   <div id="speed-row">
     <div id="speed-box">
       <div id="speed-num">0</div>
@@ -298,96 +249,112 @@ html,body{height:100dvh;background:#090D13;color:#F0F5FA;font-family:-apple-syst
       <div id="road-main">GPS indítása...</div>
       <div id="road-sub">Helymeghatározás</div>
     </div>
-    <div id="slimit" title="Sebességkorlátozás"></div>
   </div>
-
   <div id="reports">
-    <button class="rpt" data-type="police" data-icon="🚔" data-label="Rendőr">
-      <span class="rpt-i">🚔</span><span class="rpt-l">Rendőr</span>
-    </button>
-    <button class="rpt" data-type="hazard" data-icon="⚠️" data-label="Veszély">
-      <span class="rpt-i">⚠️</span><span class="rpt-l">Veszély</span>
-    </button>
-    <button class="rpt" data-type="accident" data-icon="💥" data-label="Baleset">
-      <span class="rpt-i">💥</span><span class="rpt-l">Baleset</span>
-    </button>
-    <button class="rpt" data-type="camera" data-icon="📷" data-label="Kamera">
-      <span class="rpt-i">📷</span><span class="rpt-l">Kamera</span>
-    </button>
-    <button class="rpt" data-type="traffic" data-icon="🚦" data-label="Dugó">
-      <span class="rpt-i">🚦</span><span class="rpt-l">Dugó</span>
-    </button>
+    <button class="rpt" data-icon="🚔" data-label="Rendőr"><span class="rpt-i">🚔</span><span class="rpt-l">Rendőr</span></button>
+    <button class="rpt" data-icon="⚠️" data-label="Veszély"><span class="rpt-i">⚠️</span><span class="rpt-l">Veszély</span></button>
+    <button class="rpt" data-icon="💥" data-label="Baleset"><span class="rpt-i">💥</span><span class="rpt-l">Baleset</span></button>
+    <button class="rpt" data-icon="📷" data-label="Kamera"><span class="rpt-i">📷</span><span class="rpt-l">Kamera</span></button>
+    <button class="rpt" data-icon="🚦" data-label="Dugó"><span class="rpt-i">🚦</span><span class="rpt-l">Dugó</span></button>
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
 <script>
 'use strict';
 
 /* ── STATE ── */
 const S = {
-  pos: null,       // {lat,lng,speed,heading,accuracy}
-  dest: null,      // {lat,lng,name}
-  nav: false,
-  track: true,     // follow user
-  steps: [],
-  stepIdx: 0,
-  routeSummary: null,
+  pos: null, dest: null,
+  nav: false, track: true,
+  steps: [], stepIdx: 0,
+  is3d: true,
 };
 
 /* ── MAP ── */
-const map = L.map('map', {
-  zoomControl: false, attributionControl: false,
-  center: [47.4979, 19.0402], zoom: 15,
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  center: [19.0402, 47.4979],
+  zoom: 15,
+  pitch: 45,
+  bearing: 0,
+  antialias: true,
 });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  maxZoom: 19, subdomains: 'abcd',
-}).addTo(map);
 
-let userMk = null, accCirc = null, destMk = null, routeCtrl = null;
+let userMarker = null, destMarker = null, mapReady = false;
+
+map.on('load', () => {
+  mapReady = true;
+  add3DBuildings();
+  if (S.pos) updateUserMarker();
+});
+
+function add3DBuildings() {
+  const layers = map.getStyle().layers;
+  const bldLayer = layers.find(l => l['source-layer'] === 'building');
+  if (!bldLayer) return;
+
+  // Hide flat building layers
+  layers
+    .filter(l => l['source-layer'] === 'building')
+    .forEach(l => map.setLayoutProperty(l.id, 'visibility', 'none'));
+
+  map.addLayer({
+    id: 'nova-bld-3d',
+    type: 'fill-extrusion',
+    source: bldLayer.source,
+    'source-layer': 'building',
+    minzoom: 13,
+    paint: {
+      'fill-extrusion-color': [
+        'interpolate', ['linear'], ['coalesce', ['get', 'height'], 8],
+        0, '#16213A', 20, '#1C2B46', 60, '#223355', 120, '#283D64',
+      ],
+      'fill-extrusion-height': ['coalesce', ['get', 'height'], 8],
+      'fill-extrusion-base': ['coalesce', ['get', 'min_height'], 0],
+      'fill-extrusion-opacity': 0.9,
+    },
+  });
+}
 
 /* ── DOM ── */
 const $ = id => document.getElementById(id);
 const D = {
-  loading:    $('loading'),
-  topBar:     $('top-bar'),
-  searchInput:$('search-input'),
-  clearBtn:   $('clear-btn'),
-  results:    $('results'),
-  status:     $('status'),
-  turnPanel:  $('turn-panel'),
-  turnPath:   $('turn-path'),
-  turnDist:   $('turn-dist'),
-  turnRoad:   $('turn-road'),
-  hud:        $('hud'),
-  startBtn:   $('start-btn'),
-  routeRow:   $('route-row'),
-  rtTime:     $('rt-time'),
-  rtDist:     $('rt-dist'),
-  rtEtaVal:   $('rt-eta-val'),
-  speedNum:   $('speed-num'),
-  speedBox:   $('speed-box'),
-  roadMain:   $('road-main'),
-  roadSub:    $('road-sub'),
-  stopBtn:    $('stop-btn'),
-  recenter:   $('recenter'),
-  northBtn:   $('north-btn'),
-  toast:      $('toast'),
+  loading:  $('loading'),
+  topBar:   $('top-bar'),
+  si:       $('search-input'),
+  clearBtn: $('clear-btn'),
+  results:  $('results'),
+  status:   $('status'),
+  tp:       $('turn-panel'),
+  tpath:    $('turn-path'),
+  tdist:    $('turn-dist'),
+  troad:    $('turn-road'),
+  startBtn: $('start-btn'),
+  routeRow: $('route-row'),
+  rtTime:   $('rt-time'),
+  rtDist:   $('rt-dist'),
+  rtEta:    $('rt-eta-val'),
+  sNum:     $('speed-num'),
+  sBox:     $('speed-box'),
+  roadMain: $('road-main'),
+  roadSub:  $('road-sub'),
+  stopBtn:  $('stop-btn'),
+  recenter: $('recenter'),
+  tiltBtn:  $('tilt-btn'),
+  toast:    $('toast'),
 };
 
 /* ── UTILS ── */
 let toastT;
 function toast(msg, dur=2600) {
-  D.toast.textContent = msg;
-  D.toast.style.display = 'block';
+  D.toast.textContent = msg; D.toast.style.display = 'block';
   clearTimeout(toastT);
   toastT = setTimeout(() => D.toast.style.display = 'none', dur);
 }
-
 function fmtDist(m) {
   if (m < 250) return Math.round(m / 10) * 10 + ' m';
   if (m < 1000) return Math.round(m / 50) * 50 + ' m';
@@ -395,19 +362,24 @@ function fmtDist(m) {
 }
 function fmtTime(s) {
   const m = Math.round(s / 60);
-  if (m < 60) return m + ' perc';
-  return Math.floor(m / 60) + ' ó ' + (m % 60 ? m % 60 + ' p' : '');
+  return m < 60 ? m + ' perc' : Math.floor(m/60) + ' ó ' + (m%60 ? m%60+' p' : '');
 }
 function fmtEta(s) {
   const d = new Date(Date.now() + s * 1000);
   return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000, r = Math.PI/180;
+  const dLat = (lat2-lat1)*r, dLng = (lng2-lng1)*r;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* ── GPS ── */
 function initGPS() {
   showStatus('GPS keresése...');
-  if (!navigator.geolocation) { showStatus('GPS nem elérhető'); useFallback(); return; }
+  if (!navigator.geolocation) { showStatus('GPS nem elérhető'); fallback(); return; }
   navigator.geolocation.watchPosition(onPos, onPosErr, {
     enableHighAccuracy: true, maximumAge: 3000, timeout: 25000,
   });
@@ -416,61 +388,65 @@ function initGPS() {
 function onPos(p) {
   const { latitude: lat, longitude: lng, speed, heading, accuracy } = p.coords;
   const kmh = speed != null ? Math.round(speed * 3.6) : 0;
-  S.pos = { lat, lng, speed: kmh, heading: heading || 0, accuracy };
-  updateUserMarker();
+  S.pos = { lat, lng, speed: kmh, heading: heading ?? 0, accuracy };
+  if (mapReady) updateUserMarker();
   updateSpeed(kmh);
-  if (S.track) map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.8 });
-  hideStatus();
-  hideLoading();
+  if (S.track) followUser(lng, lat, heading, kmh);
+  hideStatus(); hideLoading();
   if (S.nav) syncStep();
   else refreshRoadName(lat, lng);
 }
 
 function onPosErr(e) {
-  console.warn('GPS:', e.message);
-  showStatus('GPS hiba – demo mód (Budapest)');
-  useFallback();
+  showStatus('GPS hiba – demo mód'); fallback();
 }
 
-function useFallback() {
+function fallback() {
   S.pos = { lat: 47.4979, lng: 19.0402, speed: 0, heading: 0, accuracy: 80 };
-  updateUserMarker();
-  map.setView([S.pos.lat, S.pos.lng], 15);
+  if (mapReady) updateUserMarker();
   setTimeout(hideLoading, 1200);
+}
+
+function followUser(lng, lat, heading, speed) {
+  const pitch = S.nav ? 60 : 45;
+  const bearing = S.nav && speed > 2 && heading != null ? heading : map.getBearing();
+  map.easeTo({ center: [lng, lat], pitch, bearing, duration: 600 });
 }
 
 /* ── MARKERS ── */
 function updateUserMarker() {
-  const { lat, lng, accuracy } = S.pos;
-  const icon = L.divIcon({
-    className: '', iconSize: [22, 22], iconAnchor: [11, 11],
-    html: '<div class="u-dot"></div>',
-  });
-  if (userMk) userMk.setLatLng([lat, lng]);
-  else userMk = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
-  if (accCirc) accCirc.setLatLng([lat, lng]).setRadius(accuracy || 20);
-  else accCirc = L.circle([lat, lng], {
-    radius: accuracy || 20,
-    color: '#00D9F0', fillColor: '#00D9F0', fillOpacity: 0.07, weight: 1,
-  }).addTo(map);
+  const { lat, lng, heading, speed } = S.pos;
+  const useArrow = S.nav && speed > 2;
+  const el = document.createElement('div');
+  if (useArrow) {
+    el.className = 'u-arrow';
+    el.style.transform = `rotate(${heading}deg)`;
+  } else {
+    el.className = 'u-dot';
+  }
+  if (userMarker) {
+    userMarker.setLngLat([lng, lat]);
+    const existing = userMarker.getElement();
+    existing.className = el.className;
+    existing.style.transform = el.style.transform || '';
+  } else {
+    userMarker = new maplibregl.Marker({ element: el, anchor: useArrow ? 'bottom' : 'center' })
+      .setLngLat([lng, lat]).addTo(map);
+  }
 }
 
 function placeDestMarker(lat, lng) {
-  if (destMk) map.removeLayer(destMk);
-  const icon = L.divIcon({
-    className: '', iconSize: [36, 44], iconAnchor: [18, 44],
-    html: `<svg viewBox="0 0 36 44" width="36" height="44" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 0C8.6 0 1 7.8 1 17.4C1 29.6 18 44 18 44S35 29.6 35 17.4C35 7.8 27.4 0 18 0Z" fill="#4AABFF"/>
-      <circle cx="18" cy="17" r="7" fill="white"/>
-    </svg>`,
-  });
-  destMk = L.marker([lat, lng], { icon, zIndexOffset: 900 }).addTo(map);
+  if (destMarker) destMarker.remove();
+  const el = document.createElement('div');
+  el.innerHTML = `<svg viewBox="0 0 36 44" width="36" height="44"><path d="M18 0C8.6 0 1 7.8 1 17.4C1 29.6 18 44 18 44S35 29.6 35 17.4C35 7.8 27.4 0 18 0Z" fill="#4AABFF"/><circle cx="18" cy="17" r="7" fill="white"/></svg>`;
+  destMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+    .setLngLat([lng, lat]).addTo(map);
 }
 
 /* ── SPEED ── */
 function updateSpeed(kmh) {
-  D.speedNum.textContent = kmh;
-  D.speedBox.classList.toggle('warn', kmh > 120);
+  D.sNum.textContent = kmh;
+  D.sBox.classList.toggle('warn', kmh > 120);
 }
 
 /* ── ROAD NAME ── */
@@ -483,164 +459,183 @@ async function refreshRoadName(lat, lng) {
       const d = await r.json();
       D.roadMain.textContent = d.address?.road || d.address?.pedestrian || d.display_name.split(',')[0] || 'Ismeretlen út';
       D.roadSub.textContent = d.address?.city || d.address?.town || d.address?.suburb || '';
-    } catch (_) {}
+    } catch(_) {}
   }, 4000);
 }
 
 /* ── SEARCH ── */
 let searchT, abortCtrl;
-D.searchInput.addEventListener('input', e => {
+D.si.addEventListener('input', e => {
   const q = e.target.value.trim();
   D.clearBtn.style.display = q ? 'block' : 'none';
   clearTimeout(searchT);
   if (q.length < 3) { hideResults(); return; }
   searchT = setTimeout(() => doSearch(q), 480);
 });
-D.searchInput.addEventListener('focus', () => {
-  if (D.searchInput.value.trim().length >= 3) doSearch(D.searchInput.value.trim());
-});
+D.si.addEventListener('focus', () => { if (D.si.value.trim().length >= 3) doSearch(D.si.value.trim()); });
 D.clearBtn.addEventListener('click', () => {
-  D.searchInput.value = '';
-  D.clearBtn.style.display = 'none';
-  hideResults();
-  clearDest();
+  D.si.value = ''; D.clearBtn.style.display = 'none';
+  hideResults(); clearDest();
 });
 
 async function doSearch(q) {
   if (abortCtrl) abortCtrl.abort();
   abortCtrl = new AbortController();
-
   D.results.innerHTML = `<div class="r-item"><div class="r-ico">🔍</div><div><div class="r-name" style="color:var(--muted)">Keresés...</div></div></div>`;
   D.results.style.display = 'block';
-
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&addressdetails=1&accept-language=hu`;
     const r = await fetch(url, { signal: abortCtrl.signal });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    const data = await r.json();
-    renderResults(data);
-  } catch (e) {
-    if (e.name !== 'AbortError') {
+    renderResults(await r.json());
+  } catch(e) {
+    if (e.name !== 'AbortError')
       D.results.innerHTML = `<div class="r-item"><div class="r-ico">⚠️</div><div><div class="r-name" style="color:var(--red)">Hiba – ellenőrizd az internetet</div></div></div>`;
-      D.results.style.display = 'block';
-    }
   }
 }
 
-const PLACE_ICONS = {
-  restaurant:'🍽️', fast_food:'🍔', cafe:'☕', fuel:'⛽', hospital:'🏥',
-  pharmacy:'💊', parking:'🅿️', supermarket:'🛒', hotel:'🏨', school:'🏫',
-  bank:'🏦', cinema:'🎬', park:'🌿', museum:'🏛️', church:'⛪',
-};
+const PICO = { restaurant:'🍽️', fast_food:'🍔', cafe:'☕', fuel:'⛽', hospital:'🏥', pharmacy:'💊', parking:'🅿️', supermarket:'🛒', hotel:'🏨', school:'🏫', bank:'🏦', cinema:'🎬', park:'🌿' };
 
 function renderResults(data) {
   if (!data.length) {
     D.results.innerHTML = `<div class="r-item"><div class="r-ico">🔍</div><div><div class="r-name" style="color:var(--muted)">Nincs találat</div></div></div>`;
-    D.results.style.display = 'block';
     return;
   }
-  D.results.innerHTML = data.map((d, i) => {
+  D.results.innerHTML = data.map(d => {
     const name = d.name || d.display_name.split(',')[0];
-    const addr = d.display_name.replace(name, '').replace(/^,\s*/, '').split(',').slice(0, 2).join(', ');
-    const ico = PLACE_ICONS[d.type] || (d.class === 'highway' ? '🛣️' : d.class === 'place' ? '🏙️' : '📍');
-    return `<div class="r-item" data-idx="${i}" data-lat="${d.lat}" data-lon="${d.lon}" data-name="${esc(name)}">
+    const addr = d.display_name.replace(name,'').replace(/^,\s*/,'').split(',').slice(0,2).join(', ');
+    const ico = PICO[d.type] || (d.class === 'highway' ? '🛣️' : d.class === 'place' ? '🏙️' : '📍');
+    return `<div class="r-item" data-lat="${d.lat}" data-lon="${d.lon}" data-name="${esc(name)}">
       <div class="r-ico">${ico}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="r-name">${esc(name)}</div>
-        <div class="r-addr">${esc(addr)}</div>
-      </div>
+      <div style="flex:1;min-width:0;"><div class="r-name">${esc(name)}</div><div class="r-addr">${esc(addr)}</div></div>
     </div>`;
   }).join('');
-  D.results.style.display = 'block';
 }
 
 D.results.addEventListener('click', e => {
-  const item = e.target.closest('.r-item');
+  const item = e.target.closest('.r-item[data-lat]');
   if (!item) return;
   pickDest(parseFloat(item.dataset.lat), parseFloat(item.dataset.lon), item.dataset.name);
-  D.searchInput.value = item.dataset.name;
+  D.si.value = item.dataset.name;
 });
 function hideResults() { D.results.style.display = 'none'; }
 
 /* ── DESTINATION ── */
 function pickDest(lat, lng, name) {
   S.dest = { lat, lng, name };
-  D.searchInput.blur();
-  hideResults();
+  D.si.blur(); hideResults();
   placeDestMarker(lat, lng);
-  D.roadMain.textContent = name;
-  D.roadSub.textContent = 'Célpont';
+  D.roadMain.textContent = name; D.roadSub.textContent = 'Célpont';
   D.startBtn.style.display = 'block';
   D.routeRow.style.display = 'flex';
-  D.rtTime.textContent = '...';
-  D.rtDist.textContent = 'Számítás...';
-  S.track = false;
-  D.recenter.style.display = 'flex';
-  if (S.pos) map.fitBounds([[S.pos.lat, S.pos.lng], [lat, lng]], { padding: [90, 90], maxZoom: 16 });
-  else map.setView([lat, lng], 15);
+  D.rtTime.textContent = '...'; D.rtDist.textContent = 'Számítás...';
+  S.track = false; D.recenter.style.display = 'flex';
+  if (S.pos) map.fitBounds([[S.pos.lng, S.pos.lat],[lng, lat]], { padding: 90, maxZoom: 16 });
+  else map.setCenter([lng, lat]);
   calcRoute();
 }
 
 map.on('click', async e => {
   if (S.nav) return;
-  const { lat, lng } = e.latlng;
+  const { lat, lng } = e.lngLat;
   try {
     const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=17`);
     const d = await r.json();
     const name = d.address?.road || d.display_name.split(',')[0] || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     pickDest(lat, lng, name);
-    D.searchInput.value = name;
-    D.clearBtn.style.display = 'block';
-  } catch (_) {
-    pickDest(lat, lng, `${lat.toFixed(4)}, ${lng.toFixed(4)}`);
-  }
+    D.si.value = name; D.clearBtn.style.display = 'block';
+  } catch(_) { pickDest(lat, lng, `${lat.toFixed(4)}, ${lng.toFixed(4)}`); }
 });
 
 function clearDest() {
   S.dest = null;
-  D.startBtn.style.display = 'none';
-  D.routeRow.style.display = 'none';
-  if (destMk) { map.removeLayer(destMk); destMk = null; }
-  if (routeCtrl) { map.removeControl(routeCtrl); routeCtrl = null; }
-  D.roadMain.textContent = 'Hová mész?';
-  D.roadSub.textContent = '';
+  D.startBtn.style.display = 'none'; D.routeRow.style.display = 'none';
+  if (destMarker) { destMarker.remove(); destMarker = null; }
+  removeRoute();
+  D.roadMain.textContent = 'Hová mész?'; D.roadSub.textContent = '';
 }
 
-/* ── ROUTING ── */
-function calcRoute() {
+/* ── ROUTING (OSRM direct) ── */
+async function calcRoute() {
   if (!S.pos || !S.dest) return;
-  if (routeCtrl) { map.removeControl(routeCtrl); routeCtrl = null; }
-  routeCtrl = L.Routing.control({
-    waypoints: [L.latLng(S.pos.lat, S.pos.lng), L.latLng(S.dest.lat, S.dest.lng)],
-    createMarker: () => null,
-    lineOptions: {
-      styles: [
-        { color: '#4AABFF', weight: 8, opacity: 0.92 },
-        { color: '#8DD4FF', weight: 3, opacity: 0.35 },
-      ],
-    },
-    router: L.Routing.osrmv1({
-      serviceUrl: 'https://router.project-osrm.org/route/v1',
-      profile: 'driving',
-    }),
-    show: false, addWaypoints: false, routeWhileDragging: false, fitSelectedRoutes: false,
-  }).addTo(map);
+  try {
+    const { pos, dest } = S;
+    const url = `https://router.project-osrm.org/route/v1/driving/${pos.lng},${pos.lat};${dest.lng},${dest.lat}?steps=true&geometries=geojson&overview=full`;
+    const r = await fetch(url);
+    const data = await r.json();
+    if (data.code !== 'Ok' || !data.routes.length) { toast('Útvonal nem található'); return; }
+    const rt = data.routes[0];
+    S.steps = parseSteps(rt.legs[0].steps);
+    D.rtTime.textContent = fmtTime(rt.duration);
+    D.rtDist.textContent = fmtDist(rt.distance);
+    D.rtEta.textContent = fmtEta(rt.duration);
+    drawRoute(rt.geometry);
+  } catch(e) { toast('Útvonal hiba – ellenőrizd az internetet'); }
+}
 
-  routeCtrl.on('routesfound', e => {
-    const rt = e.routes[0];
-    S.steps = rt.instructions || [];
-    S.routeSummary = rt.summary;
-    D.rtTime.textContent = fmtTime(rt.summary.totalTime);
-    D.rtDist.textContent = fmtDist(rt.summary.totalDistance);
-    D.rtEtaVal.textContent = fmtEta(rt.summary.totalTime);
+function drawRoute(geometry) {
+  if (!mapReady) { map.once('load', () => drawRoute(geometry)); return; }
+  if (map.getSource('route')) {
+    map.getSource('route').setData(geometry); return;
+  }
+  map.addSource('route', { type: 'geojson', data: geometry });
+  map.addLayer({ id: 'route-glow', type: 'line', source: 'route',
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: { 'line-color': '#8DD4FF', 'line-width': 16, 'line-opacity': 0.25, 'line-blur': 4 }
   });
-  routeCtrl.on('routingerror', () => {
-    D.rtDist.textContent = 'Útvonal hiba';
-    toast('Útvonal nem található');
+  map.addLayer({ id: 'route-line', type: 'line', source: 'route',
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: { 'line-color': '#4AABFF', 'line-width': 8, 'line-opacity': 0.95 }
   });
+}
+
+function removeRoute() {
+  ['route-line','route-glow'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
+  if (map.getSource('route')) map.removeSource('route');
+}
+
+/* ── OSRM STEPS PARSER ── */
+function parseSteps(steps) {
+  return steps.map(s => ({
+    type: maneuverToType(s.maneuver.type, s.maneuver.modifier),
+    road: s.name || '',
+    distance: s.distance,
+    text: toHungarian(s.maneuver.type, s.maneuver.modifier, s.name),
+    waypoint: s.maneuver.location ? { lat: s.maneuver.location[1], lng: s.maneuver.location[0] } : null,
+  }));
+}
+
+function maneuverToType(type, mod) {
+  if (type === 'arrive') return 'DestinationReached';
+  if (type === 'depart') return 'Straight';
+  if (type === 'roundabout' || type === 'rotary') return 'Roundabout';
+  const m = { 'straight':'Straight','slight right':'SlightRight','right':'Right','sharp right':'SharpRight','slight left':'SlightLeft','left':'Left','sharp left':'SharpLeft','uturn':'TurnAround' };
+  return m[mod] || 'Straight';
+}
+
+function toHungarian(type, mod, road) {
+  if (type === 'depart') return road ? 'Indulás: ' + road : 'Indulás';
+  if (type === 'arrive') return 'Megérkeztél';
+  if (type === 'roundabout' || type === 'rotary') return 'Körforgalom';
+  const m = { 'straight':'Előre','slight right':'Tartsd jobbra','right':'Jobbra','sharp right':'Éles jobb','slight left':'Tartsd balra','left':'Balra','sharp left':'Éles bal','uturn':'Fordulj vissza' };
+  const base = m[mod] || 'Előre';
+  return road ? base + ': ' + road : base;
 }
 
 /* ── NAVIGATION ── */
+const ARROWS = {
+  Straight:            'M28 8L28 48M28 8L16 20M28 8L40 20',
+  SlightRight:         'M16 48C16 32 34 32 34 18M34 18L24 18M34 18L34 28',
+  Right:               'M14 28L14 12L42 12M42 12L32 4M42 12L32 20',
+  SharpRight:          'M14 44L14 22C14 12 24 12 24 22L24 36C24 46 44 46 44 32M44 32L36 24M44 32L36 40',
+  SlightLeft:          'M40 48C40 32 22 32 22 18M22 18L32 18M22 18L22 28',
+  Left:                'M42 28L42 12L14 12M14 12L24 4M14 12L24 20',
+  SharpLeft:           'M42 44L42 22C42 12 32 12 32 22L32 36C32 46 12 46 12 32M12 32L20 24M12 32L20 40',
+  TurnAround:          'M28 8L28 34C28 42 20 42 18 36M18 36L12 28M18 36L26 28',
+  Roundabout:          'M14 28C14 20.3 20.3 14 28 14C35.7 14 42 20.3 42 28C42 35.7 35.7 42 28 42M42 22L42 14L34 14',
+  DestinationReached:  'M10 28L22 40L46 14',
+};
+
 D.startBtn.addEventListener('click', startNav);
 D.stopBtn.addEventListener('click', stopNav);
 
@@ -648,64 +643,45 @@ function startNav() {
   if (!S.dest || !S.pos) return;
   S.nav = true; S.track = true; S.stepIdx = 0;
   D.topBar.style.display = 'none';
-  D.turnPanel.classList.add('on');
+  D.tp.classList.add('on');
   D.stopBtn.style.display = 'block';
   D.startBtn.style.display = 'none';
   D.recenter.style.display = 'none';
   positionStopBtn();
   if (S.steps.length) applyStep(S.steps[0]);
-  map.setView([S.pos.lat, S.pos.lng], 17, { animate: true });
+  map.easeTo({ center: [S.pos.lng, S.pos.lat], zoom: 17, pitch: 60, duration: 800 });
   toast('Navigáció elindult 🚀');
 }
 
 function stopNav() {
   S.nav = false; S.track = true; S.stepIdx = 0;
   D.topBar.style.display = 'flex';
-  D.turnPanel.classList.remove('on');
+  D.tp.classList.remove('on');
   D.stopBtn.style.display = 'none';
   D.startBtn.style.display = 'none';
   D.routeRow.style.display = 'none';
-  if (routeCtrl) { map.removeControl(routeCtrl); routeCtrl = null; }
-  if (destMk) { map.removeLayer(destMk); destMk = null; }
+  removeRoute();
+  if (destMarker) { destMarker.remove(); destMarker = null; }
   S.dest = null;
-  D.searchInput.value = '';
-  D.clearBtn.style.display = 'none';
-  D.roadMain.textContent = 'Navigáció leállítva';
-  D.roadSub.textContent = '';
+  D.si.value = ''; D.clearBtn.style.display = 'none';
+  D.roadMain.textContent = 'Navigáció leállítva'; D.roadSub.textContent = '';
+  map.easeTo({ pitch: 45, bearing: 0, duration: 600 });
   toast('Navigáció leállítva');
 }
 
 function positionStopBtn() {
   requestAnimationFrame(() => {
-    const r = D.turnPanel.getBoundingClientRect();
-    D.stopBtn.style.top = (r.bottom + 12) + 'px';
+    D.stopBtn.style.top = (D.tp.getBoundingClientRect().bottom + 12) + 'px';
   });
 }
 window.addEventListener('resize', () => { if (S.nav) positionStopBtn(); });
 
-/* Turn arrow SVG paths */
-const ARROWS = {
-  Straight:     'M28 8L28 48M28 8L16 20M28 8L40 20',
-  SlightRight:  'M16 48C16 32 34 32 34 18M34 18L24 18M34 18L34 28',
-  Right:        'M14 28L14 12L42 12M42 12L32 4M42 12L32 20',
-  SharpRight:   'M14 44L14 22C14 12 24 12 24 22L24 36C24 46 44 46 44 32M44 32L36 24M44 32L36 40',
-  SlightLeft:   'M40 48C40 32 22 32 22 18M22 18L32 18M22 18L22 28',
-  Left:         'M42 28L42 12L14 12M14 12L24 4M14 12L24 20',
-  SharpLeft:    'M42 44L42 22C42 12 32 12 32 22L32 36C32 46 12 46 12 32M12 32L20 24M12 32L20 40',
-  TurnAround:   'M28 8L28 34C28 42 20 42 18 36M18 36L12 28M18 36L26 28',
-  Roundabout:   'M14 28C14 20.3 20.3 14 28 14C35.7 14 42 20.3 42 28C42 35.7 35.7 42 28 42M42 22L42 14L34 14',
-  WaypointReached: 'M14 28L28 42L42 14',
-  DestinationReached: 'M10 28L22 40L46 14',
-};
-
 function applyStep(step) {
-  const path = ARROWS[step.type] || ARROWS.Straight;
-  D.turnPath.setAttribute('d', path);
-  D.turnDist.textContent = step.distance > 0 ? fmtDist(step.distance) : 'Most';
-  D.turnRoad.textContent = step.road || step.text || 'Folytatás előre';
-  D.turnPanel.style.background = (step.type === 'DestinationReached') ? 'var(--green)' : 'var(--acc)';
-  if (!S.nav) return;
-  D.roadMain.textContent = step.road || S.dest?.name || '';
+  D.tpath.setAttribute('d', ARROWS[step.type] || ARROWS.Straight);
+  D.tdist.textContent = step.distance > 0 ? fmtDist(step.distance) : 'Most';
+  D.troad.textContent = step.text || step.road || 'Előre';
+  D.tp.style.background = step.type === 'DestinationReached' ? 'var(--green)' : 'var(--acc)';
+  if (step.road) D.roadMain.textContent = step.road;
 }
 
 function syncStep() {
@@ -713,33 +689,33 @@ function syncStep() {
   const step = S.steps[S.stepIdx];
   if (!step) return;
   if (step.waypoint) {
-    const dist = map.distance([S.pos.lat, S.pos.lng], [step.waypoint.lat, step.waypoint.lng]);
+    const dist = haversine(S.pos.lat, S.pos.lng, step.waypoint.lat, step.waypoint.lng);
     applyStep({ ...step, distance: dist });
-    if (dist < 28 && S.stepIdx < S.steps.length - 1) {
+    if (dist < 25 && S.stepIdx < S.steps.length - 1) {
       S.stepIdx++;
       if (S.steps[S.stepIdx]?.type === 'DestinationReached') {
         applyStep(S.steps[S.stepIdx]);
-        toast('🏁 Megérkeztél a célponthoz!', 5000);
+        toast('🏁 Megérkeztél!', 5000);
         setTimeout(stopNav, 7000);
       }
     }
-  } else {
-    applyStep(step);
-  }
+  } else { applyStep(step); }
 }
 
 /* ── REPORTS ── */
 document.querySelectorAll('.rpt').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (!S.pos) { toast('GPS szükséges a jelentéshez'); return; }
-    const { icon, label } = { icon: btn.dataset.icon, label: btn.dataset.label };
-    const mk = L.divIcon({
-      className: '', iconSize: [30, 30], iconAnchor: [15, 15],
-      html: `<div style="font-size:26px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.55));">${icon}</div>`,
-    });
-    const m = L.marker([S.pos.lat, S.pos.lng], { icon: mk }).addTo(map)
-      .bindPopup(`<b>${label}</b><br><small>${new Date().toLocaleTimeString('hu')}</small>`);
-    setTimeout(() => map.removeLayer(m), 3_600_000);
+    if (!S.pos) { toast('GPS szükséges'); return; }
+    const { icon, label } = btn.dataset;
+    const el = document.createElement('div');
+    el.style.cssText = 'font-size:28px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));';
+    el.textContent = icon;
+    const mk = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([S.pos.lng, S.pos.lat])
+      .setPopup(new maplibregl.Popup({ closeButton: false, offset: 20 })
+        .setHTML(`<b>${label}</b><br><small>${new Date().toLocaleTimeString('hu')}</small>`))
+      .addTo(map);
+    setTimeout(() => mk.remove(), 3_600_000);
     toast(`${icon} ${label} bejelentve!`);
   });
 });
@@ -748,23 +724,29 @@ document.querySelectorAll('.rpt').forEach(btn => {
 $('zin').addEventListener('click', () => map.zoomIn());
 $('zout').addEventListener('click', () => map.zoomOut());
 D.recenter.addEventListener('click', () => {
-  if (S.pos) { S.track = true; map.setView([S.pos.lat, S.pos.lng], map.getZoom(), { animate: true }); }
+  S.track = true;
+  if (S.pos) map.easeTo({ center: [S.pos.lng, S.pos.lat], duration: 500 });
   D.recenter.style.display = 'none';
 });
-D.northBtn.addEventListener('click', () => {
-  D.northBtn.classList.toggle('on');
-  toast(D.northBtn.classList.contains('on') ? 'Menetirány felfelé' : 'Észak felfelé');
+D.tiltBtn.addEventListener('click', () => {
+  S.is3d = !S.is3d;
+  D.tiltBtn.classList.toggle('on', S.is3d);
+  D.tiltBtn.textContent = S.is3d ? '3D' : '2D';
+  map.easeTo({ pitch: S.is3d ? 45 : 0, duration: 600 });
+  const bld = map.getLayer('nova-bld-3d');
+  if (bld) map.setLayoutProperty('nova-bld-3d', 'visibility', S.is3d ? 'visible' : 'none');
+  toast(S.is3d ? '3D nézet' : '2D nézet');
 });
 map.on('drag', () => { S.track = false; if (!S.nav) D.recenter.style.display = 'flex'; });
 
 /* ── STATUS / LOADING ── */
 function showStatus(msg) { D.status.textContent = msg; D.status.style.display = 'block'; }
 function hideStatus() { D.status.style.display = 'none'; }
-function hideLoading(delay = 300) {
+function hideLoading(d=300) {
   setTimeout(() => {
     D.loading.style.opacity = '0';
     setTimeout(() => D.loading.style.display = 'none', 600);
-  }, delay);
+  }, d);
 }
 
 /* ── INIT ── */
