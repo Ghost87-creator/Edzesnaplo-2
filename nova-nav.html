@@ -509,13 +509,22 @@ D.clearBtn.addEventListener('click', () => {
 async function doSearch(q) {
   if (abortCtrl) abortCtrl.abort();
   abortCtrl = new AbortController();
+
+  D.results.innerHTML = `<div class="r-item"><div class="r-ico">🔍</div><div><div class="r-name" style="color:var(--muted)">Keresés...</div></div></div>`;
+  D.results.style.display = 'block';
+
   try {
-    const lat = S.pos?.lat || 47.4979, lng = S.pos?.lng || 19.0402;
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&countrycodes=hu&lat=${lat}&lon=${lng}&addressdetails=1`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&addressdetails=1&accept-language=hu`;
     const r = await fetch(url, { signal: abortCtrl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     renderResults(data);
-  } catch (e) { if (e.name !== 'AbortError') console.warn(e); }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      D.results.innerHTML = `<div class="r-item"><div class="r-ico">⚠️</div><div><div class="r-name" style="color:var(--red)">Hiba – ellenőrizd az internetet</div></div></div>`;
+      D.results.style.display = 'block';
+    }
+  }
 }
 
 const PLACE_ICONS = {
